@@ -1,9 +1,28 @@
+oldList = [
+  {tagName: 'li', props: { id: 'li-1'}, key: 'li-1',},
+  {tagName: 'li', props: { id: 'li-2'}, key: 'li-2',},
+  {tagName: 'li', props: { id: 'li-3'}, key: 'li-3',},
+  {tagName: 'li', props: { id: 'li-4'}}
+]
+
+newList = [
+  {tagName: 'li', props: {id: 'li-5'}, key: 'li-5'},
+  {tagName: 'li', props: { id: 'li-1'}, key: 'li-1'},
+  {tagName: 'li', props: { id: 'li-2'}, key: 'li-2'},
+  {tagName: 'li', props: { id: 'li-3'}, key: 'li-3'},
+  {tagName: 'li', props: { id: 'li-4'}}
+]
+
+debugger;
+listDiff(oldList, newList, 'key');
+
+
 
 function listDiff (oldList, newList, key) {
   let oldMap = makeKeyIndexAndFree(oldList, key);
   let newMap = makeKeyIndexAndFree(newList, key);
 
-  let newFree = newMap.free;
+  let newFree = newMap.free;  // 用来存放新的children中，没有key属性值的子节点
 
   let oldKeyIndex = oldMap.keyIndex;  // 旧节点key属性值的索引值对象
   let newKeyIndex = newMap.keyIndex;  // 新节点key属性值的索引值对象
@@ -16,6 +35,7 @@ function listDiff (oldList, newList, key) {
   let itemKey;
   let freeIndex = 0;
 
+  // 遍历旧子节点中所有的节点
   while (i < oldList.length) {
     // item为旧节点
     item = oldList[i];
@@ -35,27 +55,31 @@ function listDiff (oldList, newList, key) {
     } else {
       // 如果旧节点中不存在key属性
       let freeItem = newFree[freeIndex++];
-      children.push(freeItem || null);
+      children.push(freeItem || null); // 将新节点中没有key属性值的节点放入children数组中
     }
     i++;
   }
 
+  // children的长度和旧数组的长度一致
+  // simulate 模拟 假冒的
   let simulateList = children.slice(0);
 
   i = 0;
+  // 如果children中节点为null,记录节点的位置（索引值）
   while (i < simulateList.length) {
     if (simulateList[i] == null) {
-      remove(i);
-      removeSimulate(i);
+      remove(i); // moves.push({index: i, type: 0});
+      removeSimulate(i);  // simulateList.splice(index, 1);
     } else {
       i++;
     }
   }
 
   let j = i = 0;
+  // 遍历新的子节点数组
   while (i < newList.length) {
     item = newList[i];
-    itemKey = getItemKey(item, key);
+    itemKey = getItemKey(item, key); // itemKey 为新节点中key的属性值
 
     let simulateItem = simulateList[i];
     let simulateItemKey = getItemKey(simulateItem, key);
